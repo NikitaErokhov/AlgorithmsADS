@@ -97,10 +97,10 @@ namespace graph
                 {
                     for (size_t v = 0; v < vertex_count; ++v)
                     {
-                        if (adj_mat.at(u).at(v) > adj_mat.at(u).at(i) + adj_mat.at(i).at(v))
+                        if (adj_mat[u][v] > adj_mat[u][i] + adj_mat[i][v])
                         {
-                            adj_mat.at(u).at(v) = adj_mat.at(u).at(i) + adj_mat.at(i).at(v);
-                            next.at(u).at(v) = next.at(u).at(i);
+                            adj_mat[u][v] = adj_mat[u][i] + adj_mat[i][v];
+                            next[u][v] = next[u][i];
                         }
                     }
                 }
@@ -120,7 +120,7 @@ namespace graph
                 std::string error = "There is no vertex with index " + std::to_string(to);
                 throw std::out_of_range(error);
             }
-            if (next.at(from).at(to) == _INF)
+            if (next[from][to] == _INF)
                 return {};
 
             std::vector<Vertex> path;
@@ -129,11 +129,56 @@ namespace graph
 
             while (cur_v != to)
             {
-                cur_v = next.at(cur_v).at(to);
+                cur_v = next[cur_v][to];
                 path.push_back(cur_v);
             }
 
             return path;
+        }
+
+        bool CurrencyArbitrage(const AdjacencyMatrix &currency_rates)
+        {
+            size_t vertex_count = currency_rates.size();
+            AdjacencyMatrix log_currency_rates(vertex_count, std::vector<Weight>(vertex_count));
+
+            for (size_t i = 0; i < vertex_count; ++i)
+            {
+                for (size_t j = 0; j < vertex_count; ++j)
+                {
+                    if (currency_rates[i][j] > 0)
+                    {
+                        log_currency_rates[i][j] = -std::log(currency_rates[i][j]);
+                    }
+                    else
+                    {
+                        log_currency_rates[i][j] = _INF;
+                    }
+                }
+            }
+            
+            for (size_t i = 0; i < vertex_count; ++i)
+            {
+                for (size_t u = 0; u < vertex_count; ++u)
+                {
+                    for (size_t v = 0; v < vertex_count; ++v)
+                    {
+                        if (log_currency_rates[u][v] > log_currency_rates[u][i] + log_currency_rates[i][v])
+                        {
+                            log_currency_rates[u][v] = log_currency_rates[u][i] + log_currency_rates[i][v];
+                        }
+                    }
+                }
+            }
+
+            for (size_t i = 0; i < vertex_count; ++i)
+            {
+                if (log_currency_rates[i][i] < 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
     private:
