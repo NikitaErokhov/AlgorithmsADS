@@ -5,8 +5,6 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
-#include <iostream>
-#include <queue>
 #include <algorithm>
 
 namespace graph
